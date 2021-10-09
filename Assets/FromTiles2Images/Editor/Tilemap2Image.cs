@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 using System.IO;
 using System;
 using System.Text.RegularExpressions;
+using UnityEngine.UI;
 
 namespace TileMap2Img
 {
@@ -25,9 +26,16 @@ namespace TileMap2Img
         string _fileName = null;
 
 
+
+        Image _testImg = null;
+
         SpriteRenderer _debugRenderer;
         int _selectedFormat;
         private int minX, maxX, minY, maxY;
+
+        //For prototype & testing
+        Sprite _sampleSprite = null;
+        int UnityUnitPerPixel;
 
 
         private static readonly Regex sWhitespace = new Regex(@"\s+");
@@ -49,8 +57,18 @@ namespace TileMap2Img
             //Debug only
             _debugRenderer = EditorGUILayout.ObjectField("Sprite Renderer", _debugRenderer, typeof(SpriteRenderer), true) as SpriteRenderer;
 
+            _sampleSprite = EditorGUILayout.ObjectField("Sprite 4 Test", _sampleSprite, typeof(Sprite), true) as Sprite;
+
+            UnityUnitPerPixel = EditorGUILayout.IntField("Unit per pixel", UnityUnitPerPixel);
+
+            _testImg = EditorGUILayout.ObjectField("Image 4 Test", _testImg, typeof(Image), true) as Image;
+            EditorGUILayout.Space();
+
+
+            // End Debug 
             _fileName = EditorGUILayout.TextField("File Name", _fileName);
             EditorGUILayout.Space();
+
 
             // Export Button
             EditorGUI.BeginDisabledGroup(_selectedTilemap == null || _fileName == null || ReplaceWhitespace(_fileName, "").Length == 0);
@@ -58,6 +76,10 @@ namespace TileMap2Img
             if (GUILayout.Button("Export Image"))SaveImage((ImageFormat)_selectedFormat);
             
             EditorGUI.EndDisabledGroup();
+
+            //Warning
+            if (_selectedTilemap == null) EditorGUILayout.HelpBox("Missing Tilemap", MessageType.Warning);
+            if (_fileName == null || ReplaceWhitespace(_fileName, "").Length == 0) EditorGUILayout.HelpBox("Missing Filename", MessageType.Warning);
 
             if (GUILayout.Button("Reset Input"))
             {
@@ -105,10 +127,102 @@ namespace TileMap2Img
                 tilemapTexture.Apply();
                 _debugRenderer.sprite = Sprite.Create(tilemapTexture, new Rect(0,0,tilemapTexture.width, tilemapTexture.height), new Vector2(0.5f, 0.5f));
             }
-            //Warning
-            if (_selectedTilemap == null) EditorGUILayout.HelpBox("Missing Tilemap", MessageType.Warning);
-            if (_fileName == null || ReplaceWhitespace(_fileName, "").Length == 0 )EditorGUILayout.HelpBox("Missing Filename", MessageType.Warning);
+
+            if (GUILayout.Button("Test 2"))
+            {
+                // Get Basic Info
+                var bounds = _selectedTilemap.cellBounds.size;
+                Debug.Log(bounds.ToString());
+
+                int rowNumber = bounds.y;
+                int colNumber = bounds.x;
+
+
+                Debug.Log(string.Format("Number of Rows: {0} Columns: {1}", rowNumber, colNumber));
+
+                // Get Sprite
+                Sprite firstSprite = GetFirstSprite(_selectedTilemap);
+
+                if (firstSprite == null) Debug.Log("No Title with sprite attached could be found");
+                float spriteWith = firstSprite.rect.width;
+                float spriteHeight = firstSprite.rect.height;
+
+
+                Debug.Log(string.Format("Sprite With {0} & Height: {1}", spriteWith.ToString(), spriteHeight));
+
+                // Create Texture (big)
+                int unitPerPixel = UnityUnitPerPixel;
+                Texture2D texture2D = new Texture2D((int) colNumber*unitPerPixel, (int) rowNumber*unitPerPixel);
+                
+                // Init Texture with all red color
+                for(int i = 0; i < (int)spriteWith* colNumber*unitPerPixel; i++)
+                {
+                    for (int j = 0; j < (int)spriteHeight * rowNumber*unitPerPixel; j++)
+                    {
+                        texture2D.SetPixel(i, j, Color.red);
+                    }
+                }
+
+                texture2D.Apply();
+                
+                // Create Sprite to test
+                Sprite testSprite = Sprite.Create(texture2D, new Rect(0.0f, 0.0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
+
+
+                if (_testImg != null)
+                {
+                    _testImg.sprite = testSprite;
+                    _testImg.SetNativeSize();
+                }
+
+                if (_debugRenderer != null)
+                {
+                    _debugRenderer.sprite = testSprite;
+
+                }
+
+
+            }
+
+            if (GUILayout.Button("Hardcode Sprite"))
+            {
+
+                // Create Texture (big)
+                int unitPerPixel = UnityUnitPerPixel;
+                Texture2D texture2D = new Texture2D(100*8, 100*3);
+
+                // Init Texture with all red color
+                for (int i = 0; i < (int)texture2D.width; i++)
+                {
+                    for (int j = 0; j < (int)texture2D.height; j++)
+                    {
+                        texture2D.SetPixel(i, j, Color.red);
+                    }
+                }
+
+                texture2D.Apply();
+
+                // Create Sprite to test
+                Sprite testSprite = Sprite.Create(texture2D, new Rect(0.0f, 0.0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
+
+
+                if (_testImg != null)
+                {
+                    _testImg.sprite = testSprite;
+                    _testImg.SetNativeSize();
+                }
+
+                if (_debugRenderer != null)
+                {
+                    _debugRenderer.sprite = testSprite;
+
+                }
+
+
+            }
+
         }
+
 
         #endregion
 
@@ -171,6 +285,23 @@ namespace TileMap2Img
             }
             return false;
         }
+
+        //Get first sprite
+        private Sprite GetFirstSprite(Tilemap tilemap)
+            
+        {
+            foreach(var pos in tilemap.cellBounds.allPositionsWithin)
+            {
+                if (tilemap.HasTile(pos))
+                {
+                    return tilemap.GetSprite(pos);
+                }
+            }
+            return null;
+        }
+
+
+
         #endregion
 
         #region Core
