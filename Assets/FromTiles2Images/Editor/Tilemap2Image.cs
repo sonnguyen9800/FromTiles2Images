@@ -151,8 +151,11 @@ namespace TileMap2Img
                 Debug.Log(string.Format("Sprite With {0} & Height: {1}", spriteWith.ToString(), spriteHeight));
 
                 // Create Texture (big)
-                int unitPerPixel = UnityUnitPerPixel;
-                Texture2D texture2D = new Texture2D((int) colNumber*unitPerPixel, (int) rowNumber*unitPerPixel);
+                //int unitPerPixel = UnityUnitPerPixel;
+                int unitPerPixel = 1;
+
+                Texture2D texture2D = new Texture2D((int)spriteWith* colNumber *unitPerPixel,
+                    (int) spriteHeight * rowNumber*unitPerPixel);
                 
                 // Init Texture with all red color
                 for(int i = 0; i < (int)spriteWith* colNumber*unitPerPixel; i++)
@@ -164,7 +167,62 @@ namespace TileMap2Img
                 }
 
                 texture2D.Apply();
+
                 
+                //// texture2D.SetPixels(0, 0, 8*100, 8*100, dataColors);
+                // texture2D.SetPixels(dataColors);
+
+
+                Debug.Log(string.Format("Size of texture: width: {0}/ height: {1}",
+                    texture2D.width, texture2D.height));
+                
+                //for(int i = 0; i < spriteWith; i++)
+                //{
+                //    for(int j = 0; j < spriteHeight; j++)
+                //    {
+                //        texture2D.SetPixel(i, j, firstSprite.texture.GetPixel(i, j));
+                //        //texture2D.SetPixel(i, j, Color.blue);
+
+                //    }
+                //}
+
+                // Main Loop
+                int offset_x = 0, offset_y = 0;
+
+                foreach(var position in _selectedTilemap.cellBounds.allPositionsWithin)
+                {
+                    if (_selectedTilemap.HasTile(position))
+                    {
+                        //var correspondingSprite = _selectedTilemap.GetSprite(position);
+
+                        var correspondingSprite = GetCurrentSprite(_selectedTilemap.GetSprite(position));
+
+                        for (int i = 0; i < correspondingSprite.width; i++)
+                        {
+                            for (int j = 0; j < correspondingSprite.height; j++)
+                            {
+                                texture2D.SetPixel(
+                                    i + offset_x * (int)spriteWith,
+                                    j + offset_y * (int)spriteHeight,
+                                    correspondingSprite.GetPixel(i,j)); 
+
+                            }
+                        }
+                    }
+                    offset_x++;
+                    if (offset_x > colNumber - 1)
+                    {
+                        offset_y++;
+                        offset_x = 0;
+                    }
+
+
+                }
+                texture2D.filterMode = FilterMode.Point;
+
+                texture2D.Apply();
+
+
                 // Create Sprite to test
                 Sprite testSprite = Sprite.Create(texture2D, new Rect(0.0f, 0.0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
 
@@ -180,12 +238,45 @@ namespace TileMap2Img
                     _debugRenderer.sprite = testSprite;
 
                 }
+                return;
 
+                //texture2D.SetPixels(0, 0, 100, 100, dataColors);
+
+
+                texture2D.Apply();
+
+
+
+                if (_testImg != null)
+                {
+                    _testImg.sprite = testSprite;
+                    _testImg.SetNativeSize();
+                }
+
+                if (_debugRenderer != null)
+                {
+                    _debugRenderer.sprite = testSprite;
+
+                }
+
+                return;
+                // Loop through each tite from bottom-left
+                foreach(var pos in _selectedTilemap.cellBounds.allPositionsWithin)
+                {
+                    if (_selectedTilemap.HasTile(pos))
+                    {
+                        //Exist:
+
+                    }
+                }
 
             }
 
             if (GUILayout.Button("Hardcode Sprite"))
             {
+
+     
+
 
                 // Create Texture (big)
                 int unitPerPixel = UnityUnitPerPixel;
@@ -222,6 +313,9 @@ namespace TileMap2Img
             }
 
         }
+
+
+
 
 
         #endregion
