@@ -9,7 +9,13 @@ using UnityEngine.UI;
 
 namespace TileMap2Img
 {
-
+    struct RectangleTilemapData
+    {
+        public Vector2Int TopLeft;
+        public Vector2Int TopRight;
+        public Vector2Int BottomLeft;
+        public Vector2Int BottomRight;
+    }
     public enum ImageFormat
     {
         PNG = 0,
@@ -30,6 +36,10 @@ namespace TileMap2Img
         Image _testImg = null;
 
         SpriteRenderer _debugRenderer;
+
+        SpriteRenderer _debugRenderer2;
+
+
         int _selectedFormat;
         private int minX, maxX, minY, maxY;
 
@@ -56,6 +66,8 @@ namespace TileMap2Img
             _selectedFormat = EditorGUILayout.Popup("Format", _selectedFormat, Enum.GetNames(typeof(ImageFormat)));
             //Debug only
             _debugRenderer = EditorGUILayout.ObjectField("Sprite Renderer", _debugRenderer, typeof(SpriteRenderer), true) as SpriteRenderer;
+
+            _debugRenderer2 = EditorGUILayout.ObjectField("Sprite Renderer 2", _debugRenderer2, typeof(SpriteRenderer), true) as SpriteRenderer;
 
             _sampleSprite = EditorGUILayout.ObjectField("Sprite 4 Test", _sampleSprite, typeof(Sprite), true) as Sprite;
 
@@ -128,7 +140,7 @@ namespace TileMap2Img
                 _debugRenderer.sprite = Sprite.Create(tilemapTexture, new Rect(0,0,tilemapTexture.width, tilemapTexture.height), new Vector2(0.5f, 0.5f));
             }
 
-            if (GUILayout.Button("Test 2"))
+            if (GUILayout.Button("Draw on Texture"))
             {
                 // Get Basic Info
                 var bounds = _selectedTilemap.cellBounds.size;
@@ -168,24 +180,10 @@ namespace TileMap2Img
 
                 texture2D.Apply();
 
-                
-                //// texture2D.SetPixels(0, 0, 8*100, 8*100, dataColors);
-                // texture2D.SetPixels(dataColors);
-
 
                 Debug.Log(string.Format("Size of texture: width: {0}/ height: {1}",
                     texture2D.width, texture2D.height));
                 
-                //for(int i = 0; i < spriteWith; i++)
-                //{
-                //    for(int j = 0; j < spriteHeight; j++)
-                //    {
-                //        texture2D.SetPixel(i, j, firstSprite.texture.GetPixel(i, j));
-                //        //texture2D.SetPixel(i, j, Color.blue);
-
-                //    }
-                //}
-
                 // Main Loop
                 int offset_x = 0, offset_y = 0;
 
@@ -240,52 +238,45 @@ namespace TileMap2Img
                 }
                 return;
 
-                //texture2D.SetPixels(0, 0, 100, 100, dataColors);
+                // Cropping Texture
+                
 
-
-                texture2D.Apply();
-
-
-
-                if (_testImg != null)
-                {
-                    _testImg.sprite = testSprite;
-                    _testImg.SetNativeSize();
-                }
-
-                if (_debugRenderer != null)
-                {
-                    _debugRenderer.sprite = testSprite;
-
-                }
-
-                return;
-                // Loop through each tite from bottom-left
-                foreach(var pos in _selectedTilemap.cellBounds.allPositionsWithin)
-                {
-                    if (_selectedTilemap.HasTile(pos))
-                    {
-                        //Exist:
-
-                    }
-                }
 
             }
 
             if (GUILayout.Button("Hardcode Sprite"))
             {
+                // Get Basic Info
+                var bounds = _selectedTilemap.cellBounds.size;
+                Debug.Log(bounds.ToString());
 
-     
+                int rowNumber = bounds.y;
+                int colNumber = bounds.x;
 
+
+                Debug.Log(string.Format("Number of Rows: {0} Columns: {1}", rowNumber, colNumber));
+
+                // Get Sprite
+                Sprite firstSprite = GetFirstSprite(_selectedTilemap);
+
+                if (firstSprite == null) Debug.Log("No Title with sprite attached could be found");
+                float spriteWith = firstSprite.rect.width;
+                float spriteHeight = firstSprite.rect.height;
+
+
+                Debug.Log(string.Format("Sprite With {0} & Height: {1}", spriteWith.ToString(), spriteHeight));
 
                 // Create Texture (big)
-                int unitPerPixel = UnityUnitPerPixel;
-                Texture2D texture2D = new Texture2D(100*8, 100*3);
+                //int unitPerPixel = UnityUnitPerPixel;
+                int unitPerPixel = 1;
+
+                Texture2D texture2D = new Texture2D((int)spriteWith * colNumber * unitPerPixel,
+                    (int)spriteHeight * rowNumber * unitPerPixel);
 
                 // Init Texture with all red color
-                for (int i = 0; i < (int)texture2D.width; i++)
+                for (int i = 0; i < (int)spriteWith * colNumber * unitPerPixel; i++)
                 {
-                    for (int j = 0; j < (int)texture2D.height; j++)
+                    for (int j = 0; j < (int)spriteHeight * rowNumber * unitPerPixel; j++)
                     {
                         texture2D.SetPixel(i, j, Color.red);
                     }
@@ -293,10 +284,46 @@ namespace TileMap2Img
 
                 texture2D.Apply();
 
+
+                Debug.Log(string.Format("Size of texture: width: {0}/ height: {1}",
+                    texture2D.width, texture2D.height));
+
+                // Main Loop
+                int offset_x = 0, offset_y = 0;
+
+                foreach (var position in _selectedTilemap.cellBounds.allPositionsWithin)
+                {
+                    if (_selectedTilemap.HasTile(position))
+                    {
+                        var correspondingSprite = GetCurrentSprite(_selectedTilemap.GetSprite(position));
+
+                        for (int i = 0; i < correspondingSprite.width; i++)
+                        {
+                            for (int j = 0; j < correspondingSprite.height; j++)
+                            {
+                                texture2D.SetPixel(
+                                    i + offset_x * (int)spriteWith,
+                                    j + offset_y * (int)spriteHeight,
+                                    correspondingSprite.GetPixel(i, j));
+
+                            }
+                        }
+                    }
+                    offset_x++;
+                    if (offset_x > colNumber - 1)
+                    {
+                        offset_y++;
+                        offset_x = 0;
+                    }
+
+
+                }
+                texture2D.filterMode = FilterMode.Point;
+                texture2D.Apply();
+
+
                 // Create Sprite to test
                 Sprite testSprite = Sprite.Create(texture2D, new Rect(0.0f, 0.0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
-
-
                 if (_testImg != null)
                 {
                     _testImg.sprite = testSprite;
@@ -309,13 +336,129 @@ namespace TileMap2Img
 
                 }
 
+                //Reset offset
+                offset_y = 0;
+                offset_x = 0;
 
+                // Bounder points:
+                int minX = minY = int.MaxValue; int maxX = maxY = int.MinValue;
+
+                foreach (var pos in _selectedTilemap.cellBounds.allPositionsWithin)
+                {
+                    if (_selectedTilemap.HasTile(pos))
+                    {
+                        //Check if the point can be new Bottom Left
+                        if (minX > offset_x) minX = offset_x;
+
+                        if (maxX < offset_x) maxX = offset_x;
+
+                        if (minY > offset_y) minY = offset_y;
+
+                        if (maxY < offset_y) maxY = offset_y;
+                    }
+
+
+                    offset_x++;
+                    if (offset_x > colNumber - 1)
+                    {
+                        offset_y++;
+                        offset_x = 0;
+                    }
+                }
+                RectangleTilemapData rectangleTilemapData = new RectangleTilemapData();
+
+                rectangleTilemapData.BottomLeft = new Vector2Int(minX, minY);
+                rectangleTilemapData.BottomRight = new Vector2Int(maxX, minY);
+                rectangleTilemapData.TopLeft = new Vector2Int(minX, maxY);
+                rectangleTilemapData.TopRight = new Vector2Int(maxX, maxY);
+
+                // Prepare before crop:
+                Vector2Int beginPoint = rectangleTilemapData.BottomLeft;
+
+                Vector2Int areaCrop = new Vector2Int();
+                areaCrop.x = (maxX - minX + 1) * (int)spriteWith;
+                areaCrop.y = (maxY - minY + 1) * (int)spriteHeight;
+
+                // Loop to cut:
+                Texture2D finalTexture = new Texture2D(areaCrop.x, areaCrop.y);
+
+
+                for (int i = 0; i < finalTexture.width; i++)
+                {
+                    for (int j = 0; j < finalTexture.height; j++)
+                    {
+                        finalTexture.SetPixel(i, j, new Color(0, 0, 0, 0));
+                    }
+                }
+
+                finalTexture.Apply();
+
+                //Reset offset
+                offset_y = 0;
+                offset_x = 0;
+
+
+                //Vector difference:
+                int count = 0;
+                foreach (var position in _selectedTilemap.cellBounds.allPositionsWithin)
+                {
+
+
+                    if (_selectedTilemap.HasTile(position))
+                    {
+                        var correspondingSprite = GetCurrentSprite(_selectedTilemap.GetSprite(position));
+
+                        for (int i = 0; i < correspondingSprite.width; i++)
+                        {
+                            for (int j = 0; j < correspondingSprite.height; j++)
+                            {
+                                finalTexture.SetPixel(
+                                    i + offset_x * (int)spriteWith - beginPoint.x,
+                                    j + offset_y * (int)spriteHeight - beginPoint.y,
+                                    correspondingSprite.GetPixel(i, j));
+                                count++;
+                            }
+                        }
+                    }
+                    offset_x++;
+                    if (offset_x > colNumber - 1)
+                    {
+                        offset_y++;
+                        offset_x = 0;
+                    }
+
+
+                }
+
+                Debug.LogError(string.Format("Data Count: {0}", count));
+                finalTexture.filterMode = FilterMode.Point;
+                finalTexture.Apply();
+
+                Debug.LogError(string.Format("Get color: {0}", finalTexture.GetPixel(0,0)));
+
+
+
+                Sprite testSprite2 = Sprite.Create(finalTexture, new Rect(0.0f, 0.0f, finalTexture.width, finalTexture.height), new Vector2(0.5f, 0.5f));
+
+                if (_debugRenderer2 != null)
+                {
+                    _debugRenderer2.sprite = testSprite2;
+                }
+                Debug.LogError("End");
+
+                
             }
 
         }
 
 
+        private bool CheckOffsetExist(int x, int y, int maxX, int minX, int maxY, int minY)
+        {
+            if (x < minX || x > maxX) return false;
+            if (y < minY || y > maxY) return false;
 
+            return true;
+        }
 
 
         #endregion
