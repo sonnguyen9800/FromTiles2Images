@@ -89,8 +89,6 @@ namespace TileMap2Img
 
             // Get Basic Info
             var bounds = tilemap.cellBounds.size;
-            Debug.Log(bounds.ToString());
-
             int rowNumber = bounds.y;
             int colNumber = bounds.x;
 
