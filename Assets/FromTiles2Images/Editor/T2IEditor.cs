@@ -28,6 +28,25 @@ namespace TileMap2Img
 
         private void OnGUI()
         {
+            SetupGUI();
+
+            // Disable Group
+            EditorGUI.BeginDisabledGroup(_selectedTilemap == null || _fileName == null || T2IUtils.ReplaceWhitespace(_fileName, "").Length == 0);
+           
+            if (GUILayout.Button(LabelText.ExportImage)) ExportTilemap();   
+            
+            EditorGUI.EndDisabledGroup();
+            
+            if (GUILayout.Button(LabelText.ResetInput)) ResetInput();
+
+            DisplayWarning();
+        }
+
+        #endregion
+
+        #region UI
+        private void SetupGUI()
+        {
             GUILayout.Label(LabelText.Title, EditorStyles.boldLabel);
 
             EditorGUILayout.Space();
@@ -39,44 +58,35 @@ namespace TileMap2Img
             _fileName = EditorGUILayout.TextField(LabelText.ImageFileName, _fileName);
             EditorGUILayout.Space();
 
-
-            // Disable Group
-            EditorGUI.BeginDisabledGroup(_selectedTilemap == null || _fileName == null || T2IUtils.ReplaceWhitespace(_fileName, "").Length == 0);
-
-            if (GUILayout.Button(LabelText.ExportImage))
-            {
-                var CellLayout = T2IUtils.GetGridLayout(_selectedTilemap);
-
-                TileMapParam tileMapParam = new TileMapParam
-                {
-                    Tilemap = _selectedTilemap,
-                    Layout = CellLayout,
-                    ImageFormat = (ImageFormat)_selectedFormat
-                };
-
-                T2ICore.Process(tileMapParam, _fileName);
-
-            }
-            
-            EditorGUI.EndDisabledGroup();
-
-            if (GUILayout.Button(LabelText.ResetInput))
-            {
-                _selectedTilemap = null;
-                _fileName = null;
-            }
-
-            DisplayWarning();
         }
 
-        #endregion
-
-        #region Warning
         private void DisplayWarning()
         {
             //Warning
             if (_selectedTilemap == null) EditorGUILayout.HelpBox(LabelText.MissingTileMap, MessageType.Warning);
             if (_fileName == null || T2IUtils.ReplaceWhitespace(_fileName, "").Length == 0) EditorGUILayout.HelpBox(LabelText.MissingFileName, MessageType.Warning);
+        }
+        #endregion
+
+        #region Button
+        private void ExportTilemap()
+        {
+            var CellLayout = T2IUtils.GetGridLayout(_selectedTilemap);
+
+            TilemapParam tileMapParam = new TilemapParam
+            {
+                Tilemap = _selectedTilemap,
+                Layout = CellLayout,
+                ImageFormat = (ImageFormat)_selectedFormat
+            };
+
+            T2ICore.Process(tileMapParam, _fileName);
+        }
+
+        private void ResetInput()
+        {
+            _selectedTilemap = null;
+            _fileName = null;
         }
         #endregion
     }

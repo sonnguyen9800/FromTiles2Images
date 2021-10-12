@@ -14,7 +14,7 @@ namespace TileMap2Img.Define
         TGA = 3,
     }
 
-    public class TileMapParam
+    public class TilemapParam
     {
         public Tilemap Tilemap;
         public Grid.CellLayout Layout = Grid.CellLayout.Rectangle;
