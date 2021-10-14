@@ -108,18 +108,21 @@ namespace TileMap2Img
                 if (tilemap.HasTile(position))
                 {
                     var correspondingSprite = T2IUtils.GetCurrentSprite(tilemap.GetSprite(position));
-
-                    for (int i = 0; i < correspondingSprite.width; i++)
+                    if (correspondingSprite != null)
                     {
-                        for (int j = 0; j < correspondingSprite.height; j++)
+                        for (int i = 0; i < correspondingSprite.width; i++)
                         {
-                            finalTexture.SetPixel(
-                                i + offset_x * (int)_spriteWidth - beginPoint.x,
-                                j + offset_y * (int)_spriteHeight - beginPoint.y,
-                                correspondingSprite.GetPixel(i, j));
-                            count++;
+                            for (int j = 0; j < correspondingSprite.height; j++)
+                            {
+                                finalTexture.SetPixel(
+                                    i + offset_x * (int)_spriteWidth - beginPoint.x,
+                                    j + offset_y * (int)_spriteHeight - beginPoint.y,
+                                    correspondingSprite.GetPixel(i, j));
+                                count++;
+                            }
                         }
                     }
+
                 }
                 offset_x++;
                 if (offset_x > _colNum - 1)

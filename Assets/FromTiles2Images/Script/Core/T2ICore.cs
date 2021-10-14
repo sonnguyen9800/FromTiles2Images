@@ -12,6 +12,7 @@ namespace TileMap2Img
 {
     public static class T2ICore
     {
+       
         public static void Process(TilemapParam param, string fileName)
         {
             Texture2D _texture = null;
@@ -53,7 +54,14 @@ namespace TileMap2Img
 
         private static void SaveImage(TilemapParam param, string fileName, Texture2D _texture)
         {
-            string path = EditorUtility.SaveFolderPanel(LabelText.ImageSave, "", fileName);
+            string path = EditorUtility.SaveFilePanel(
+               LabelText.ImageSave,  
+                "", 
+                fileName + "." + param.ImageFormat.ToString().ToLower(),
+                
+                param.ImageFormat.ToString().ToLower());
+
+            Debug.Log(path);
             if (path.Length != 0)
             {
                 byte[] byteCodedata;
@@ -80,7 +88,7 @@ namespace TileMap2Img
 
                 if (byteCodedata != null)
                 {
-                    File.WriteAllBytes(path + "/" + fileName + "." + param.ImageFormat.ToString().ToLower(), byteCodedata);
+                    File.WriteAllBytes(path, byteCodedata);
                     EditorUtility.DisplayDialog(LabelText.SuccessConvert, string.Format("The file {0}.{1} has been exported", fileName, param.ImageFormat.ToString().ToLower()), "OK");
                 }
                 else

@@ -50,6 +50,7 @@ namespace TileMap2Img
 
         public static Texture2D GetCurrentSprite(Sprite sprite)
         {
+            if (sprite == null) return null;
             var texture = sprite.texture;
             var result = HandleTextureUnreadable(texture);
 

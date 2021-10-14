@@ -29,7 +29,7 @@ namespace TileMap2Img
             SetupGUI();
 
             // Disable Group
-            EditorGUI.BeginDisabledGroup(_selectedTilemap == null || _fileName == null || T2IUtils.ReplaceWhitespace(_fileName, "").Length == 0);
+            EditorGUI.BeginDisabledGroup(_selectedTilemap == null);
            
             if (GUILayout.Button(LabelText.ExportImage)) ExportTilemap();   
             
