@@ -43,7 +43,7 @@ Finally, aside from **leocub58** I found no more package that can achieve the sa
 5. Hit the "*Export image*" button
 
 ## Demostration
-Tilemap on the Left, on the right is the exported sprite that had been imported into the project.
+Tilemap is on the Left, on the right is the exported sprite that had been re-imported into the project.
 
 ![alt text](demo.JPG)
 
