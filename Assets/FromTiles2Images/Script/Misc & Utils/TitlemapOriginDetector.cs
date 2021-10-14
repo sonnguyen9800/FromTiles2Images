@@ -47,5 +47,13 @@ namespace TileMap2Img.Misc
             Debug.DrawLine(new Vector3(tp.x, tBounds.min.y + tp.y), new Vector3(tp.x, tBounds.max.y + tp.y), Color.green);
             Debug.DrawLine(new Vector3(tBounds.min.x + tp.x, tp.y), new Vector3(tBounds.max.x + tp.x, tp.y), Color.green);
         }
+
+
+        void DrawCoordinate()
+        {
+            if (tilemap == null)
+                return;
+
+        }
     }
 }

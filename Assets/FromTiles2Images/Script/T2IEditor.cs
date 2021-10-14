@@ -14,6 +14,10 @@ namespace TileMap2Img
         private Tilemap _selectedTilemap = null;
         private string _fileName = null;
         private int _selectedFormat;
+
+        public T2IEditor()
+        {
+        }
         #endregion
 
         #region GUI & Action

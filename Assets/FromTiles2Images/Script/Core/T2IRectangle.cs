@@ -55,7 +55,7 @@ namespace TileMap2Img
 
             foreach (var pos in tilemap.cellBounds.allPositionsWithin)
             {
-                if (tilemap.HasTile(pos))
+                if (tilemap.HasTile(pos) && tilemap.GetSprite(pos) != null)
                 {
                     //Check if the point can be new Bottom Left
                     if (_minX > offset_x) _minX = offset_x;
@@ -85,6 +85,8 @@ namespace TileMap2Img
             // Prepare before crop:
             Vector2Int beginPoint = rectangleTilemapData.BottomLeft;
 
+            Debug.Log("Begin" + beginPoint);
+
             Vector2Int areaCrop = new Vector2Int();
             areaCrop.x = (_maxX - _minX + 1) * (int)_spriteWidth;
             areaCrop.y = (_maxY - _minY + 1) * (int)_spriteHeight;
@@ -110,15 +112,26 @@ namespace TileMap2Img
                     var correspondingSprite = T2IUtils.GetCurrentSprite(tilemap.GetSprite(position));
                     if (correspondingSprite != null)
                     {
+                        Debug.Log("Sprite name: " + tilemap.GetSprite(position).name);
                         for (int i = 0; i < correspondingSprite.width; i++)
                         {
                             for (int j = 0; j < correspondingSprite.height; j++)
                             {
                                 finalTexture.SetPixel(
-                                    i + offset_x * (int)_spriteWidth - beginPoint.x,
-                                    j + offset_y * (int)_spriteHeight - beginPoint.y,
+                                    i + offset_x * (int)_spriteWidth - beginPoint.x * (int)_spriteWidth,
+                                    j + offset_y * (int)_spriteHeight - beginPoint.y * (int)_spriteHeight,
                                     correspondingSprite.GetPixel(i, j));
+                                
+                                if (count == 0)
+                                {
+                                    Debug.Log(string.Format("on texture: x:{0} y:{1}",
+                                        i + offset_x * (int)_spriteWidth + beginPoint.x, 
+                                        j + offset_y * (int)_spriteHeight + beginPoint.y));
+                                    Debug.Log(string.Format("on origin sprite: x:{0} y:{1}", i,j));
+
+                                }
                                 count++;
+                                
                             }
                         }
                     }
