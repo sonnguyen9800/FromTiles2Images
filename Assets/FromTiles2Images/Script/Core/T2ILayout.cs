@@ -7,7 +7,7 @@ namespace TileMap2Img.Core
 {
     public abstract class T2ILayout
     {
-        TilemapParam Param = null;
+
         // Start is called before the first frame update
         public abstract Texture2D ExportTexture2d();
     }

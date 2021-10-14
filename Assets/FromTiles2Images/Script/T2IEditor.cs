@@ -7,7 +7,6 @@ using System;
 using TileMap2Img.Define;
 namespace TileMap2Img
 {
-    [CustomEditor(typeof(T2IEditor))]
 
     public class T2IEditor : EditorWindow
     {

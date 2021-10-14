@@ -89,7 +89,7 @@ namespace TileMap2Img
                 if (byteCodedata != null)
                 {
                     File.WriteAllBytes(path, byteCodedata);
-                    EditorUtility.DisplayDialog(LabelText.SuccessConvert, string.Format("The file {0}.{1} has been exported", fileName, param.ImageFormat.ToString().ToLower()), "OK");
+                    EditorUtility.DisplayDialog(LabelText.SuccessConvert, string.Format("Image has been exported"), "OK");
                 }
                 else
                 {
