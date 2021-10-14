@@ -36,14 +36,11 @@ Finally, aside from **leocub58** I found no more package that can achieve the sa
 
 ## How It Works
 
-1. Open **Tilemap To Image** window. By default it is in *Window/Tilemap2Img*
+1. Open **Tilemap To Image** window. By default it is in the toolbar *Window/Tilemap2Img*
 2. Prepare a Grid & Tilemaps. 
 3. Drag the tilemap (gameObject) into the Window **Tilemap to Image**
 4. Fill in the name (optional)
 5. Hit the "*Export image*" button
-
-## UI Sample
-
 
 ## Demostration
 Tilemap on the Left, on the right is the exported sprite that had been imported into the project.
