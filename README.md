@@ -49,7 +49,7 @@ Tilemap is on the Left, on the right is the exported sprite that had been re-imp
 
 ## Further Development & Limitation
 - Implement algorithm to work with Hexagon & Isometric Grid.
-- There are often more than one tilemap be used in the same time to create layers. Current implemntation only export one tilemap into one single image.
+- There are often more than one tilemap be used in the same time to create layers. Current implemtation only export one tilemap into one single image.
   
 ## Acknowledgement
 
