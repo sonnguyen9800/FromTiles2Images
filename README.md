@@ -23,7 +23,7 @@ The tool is still under development, any contribution and feedback is welcomed!
 
 You have a wonderful spritesheet, you create a tilemap from it but then you want to use it as a **prefab**. What can be your solutions?
 - You may create multiple **gameObject**, each with single *Sprite* of the tilemap, then group them into one single **gameObject**, then make it into a prefab? (*spoil*: It's totally insane and can put you into an *existential crisis*)
-- You may use third-party software to creat tilemaps then export it (such as **Tiled**). The bad new is that not many Tilemap Editors that are free, also I tried **Tiled** onced and I hate it (basically give up after 10 minutes!)
+- You may use third-party software to creat tilemaps then export it (such as **Tiled**). The bad new is that not many Tilemap Editors that are free, also I tried **Tiled** onced and I hate it (I basically gave up after 10 minutes!)
 - Then you surf the internet, aha, it's seem that there is not much of result as well.
 - Of course, **leocub58** wrote a free package to solve this problem. However, several weakness can be pointed out, for example:
   
